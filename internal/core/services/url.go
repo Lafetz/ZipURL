@@ -1,6 +1,8 @@
 package services
 
 import (
+	"strconv"
+
 	"github.com/google/uuid"
 	"github.com/lafetz/url-shortner/internal/core/domain"
 	"github.com/lafetz/url-shortner/internal/core/ports"
@@ -17,7 +19,16 @@ func (srv *UrlService) GetUrl(shortUrl string) (*domain.Url, error) {
 	return srv.repo.GetUrl(shortUrl)
 }
 func (srv *UrlService) AddUrl(url *domain.Url) (*domain.Url, error) {
+	totalUrls, err := srv.repo.TotalUrls()
+	if err != nil {
+		return nil, err
+	}
+	//
+	id := uuid.New().String()
+	truncatedID := id[:7] + strconv.Itoa(totalUrls)
+	//
 
+	url.ShortUrl = truncatedID
 	return srv.repo.AddUrl(url)
 }
 func (srv *UrlService) UpdateUrl(url *domain.Url) error {

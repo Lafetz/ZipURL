@@ -7,6 +7,7 @@ import (
 
 type UrlRepository interface {
 	GetUrls(userId uuid.UUID) ([]*domain.Url, error)
+	TotalUrls() (int, error)
 	GetUrl(shortUrl string) (*domain.Url, error)
 	AddUrl(*domain.Url) (*domain.Url, error)
 	UpdateUrl(*domain.Url) error
