@@ -29,26 +29,25 @@ func createJwt(user *domain.User) (string, error) {
 		NotBefore: jwt.NewNumericDate(time.Now()),
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 	},
-		ID:    "1",
-		Email: user.Email,
-
-		Username: "First Last"})
+		ID:       user.Id.String(),
+		Email:    user.Email,
+		Username: user.Username})
 
 	jwtToken, err := token.SignedString([]byte(KEY)) //
 	return jwtToken, err
 
 }
-func pareseJwt(jwtToken string) error {
+func pareseJwt(jwtToken string) (*UserClaim, error) {
 	KEY := "temporaryKEy"
 	var userClaim UserClaim
 	token, err := jwt.ParseWithClaims(jwtToken, userClaim, func(token *jwt.Token) (interface{}, error) {
 		return []byte(KEY), nil
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if !token.Valid {
-		return ERRINVALIDTOKEN
+		return nil, ERRINVALIDTOKEN
 	}
-	return nil
+	return &userClaim, nil
 }
