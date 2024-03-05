@@ -7,12 +7,8 @@ import (
 )
 
 var (
-	ERRINVALIDPASSWORD = errors.New("incorrect password")
+	ErrInvalidPassword = errors.New("incorrect password")
 )
-
-type Password struct {
-	password string
-}
 
 func hashPassword(plaintextPassword string) ([]byte, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(plaintextPassword), 12)
@@ -28,7 +24,7 @@ func matchPassword(plaintextPassword string, hash []byte) error {
 	if err != nil {
 		switch {
 		case errors.Is(err, bcrypt.ErrMismatchedHashAndPassword):
-			return ERRINVALIDPASSWORD
+			return ErrInvalidPassword
 		default:
 			return err
 		}

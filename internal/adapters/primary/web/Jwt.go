@@ -16,7 +16,7 @@ type UserClaim struct {
 }
 
 var (
-	ERRINVALIDTOKEN = errors.New("token not valid")
+	ErrInvalidToken = errors.New("token not valid")
 )
 
 func createJwt(user *domain.User) (string, error) {
@@ -47,7 +47,7 @@ func pareseJwt(jwtToken string) (*UserClaim, error) {
 		return nil, err
 	}
 	if !token.Valid {
-		return nil, ERRINVALIDTOKEN
+		return nil, ErrInvalidToken
 	}
 	return &userClaim, nil
 }

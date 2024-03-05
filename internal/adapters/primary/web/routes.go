@@ -11,7 +11,7 @@ func (a *App) initAppRoutes() {
 	a.gin.POST("/urls", a.createUrl)
 	a.gin.DELETE("/urls/:id", a.deleteUrl)
 	//
-	a.gin.GET("/ping", requireAuth, func(c *gin.Context) {
+	a.gin.GET("/ping", requireAuth(), func(c *gin.Context) {
 		c.String(200, "yup working")
 	})
 }
