@@ -3,10 +3,12 @@ package repository
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/lafetz/url-shortner/internal/core/domain"
+	"github.com/lafetz/url-shortner/internal/core/services"
 )
 
 func (store *Store) GetUser(username string) (*domain.User, error) {
@@ -38,9 +40,10 @@ RETURNING id, created_at, version`
 	defer cancel()
 	err := store.db.QueryRowContext(ctx, query, args...).Scan(&user.CreatedAt)
 	if err != nil {
+		fmt.Print(err)
 		switch {
 		case err.Error() == `pq: duplicate key value violates unique constraint "users_email_key"`:
-			return nil, err
+			return nil, services.ErrEmailUnique
 		default:
 			return nil, err
 		}

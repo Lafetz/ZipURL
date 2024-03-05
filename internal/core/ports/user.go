@@ -8,6 +8,6 @@ import (
 type UserRepository interface {
 	GetUser(username string) (*domain.User, error)
 	AddUser(*domain.User) (*domain.User, error)
-	UpdateUser(*domain.User) error
+
 	DeleteUser(uuid.UUID) error
 }

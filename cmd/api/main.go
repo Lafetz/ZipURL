@@ -18,5 +18,4 @@ func main() {
 	urlService := services.NewUrlService(repo)
 	application := web.NewApp(*userService, *urlService)
 	application.Run()
-
 }
