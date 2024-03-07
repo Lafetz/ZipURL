@@ -6,13 +6,13 @@ import (
 )
 
 type App struct {
-	userService services.UserService
+	userService services.UserServicePort
 	urlService  services.UrlService
 	gin         *gin.Engine
 	port        int
 }
 
-func NewApp(userService services.UserService, urlService services.UrlService) *App {
+func NewApp(userService services.UserServicePort, urlService services.UrlService) *App {
 	a := &App{
 		gin:         gin.Default(),
 		urlService:  urlService,

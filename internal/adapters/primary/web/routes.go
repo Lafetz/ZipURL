@@ -4,7 +4,7 @@ import "github.com/gin-gonic/gin"
 
 func (a *App) initAppRoutes() {
 
-	a.gin.POST("/signup", a.createUser())
+	a.gin.POST("/signup", createUser(a.userService))
 	a.gin.POST("/signin", a.signinUser())
 	//
 	a.gin.GET("/urls", a.getUrls)
