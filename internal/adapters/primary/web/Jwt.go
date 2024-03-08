@@ -10,9 +10,18 @@ import (
 
 type UserClaim struct {
 	jwt.RegisteredClaims
-	ID       string
+	Id       string
 	Email    string
 	Username string
+}
+
+func (u *UserClaim) getUserToken() *userToken {
+	return &userToken{
+		Id:       u.Id,
+		Email:    u.Email,
+		Username: u.Email,
+	}
+
 }
 
 var (
@@ -22,32 +31,32 @@ var (
 func createJwt(user *domain.User) (string, error) {
 	KEY := "temporaryKEy"
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, UserClaim{RegisteredClaims: jwt.RegisteredClaims{
-		Issuer:    "github.com/lafetz/snippitstash",
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, UserClaim{RegisteredClaims: jwt.RegisteredClaims{Issuer: "github.com/lafetz/snippitstash",
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
 		Audience:  jwt.ClaimStrings{"github.com/lafetz/snippitstash"},
 		NotBefore: jwt.NewNumericDate(time.Now()),
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
-	},
-		ID:       user.Id.String(),
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour))},
+		Id:       user.Id.String(),
 		Email:    user.Email,
 		Username: user.Username})
 
 	jwtToken, err := token.SignedString([]byte(KEY)) //
+
 	return jwtToken, err
 
 }
-func pareseJwt(jwtToken string) (*UserClaim, error) {
+func pareseJwt(jwtToken string) (*userToken, error) {
 	KEY := "temporaryKEy"
-	var userClaim UserClaim
-	token, err := jwt.ParseWithClaims(jwtToken, userClaim, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(jwtToken, &UserClaim{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(KEY), nil
 	})
 	if err != nil {
-		return nil, err
-	}
-	if !token.Valid {
 		return nil, ErrInvalidToken
 	}
-	return &userClaim, nil
+
+	if claims, ok := token.Claims.(*UserClaim); ok && token.Valid {
+		return claims.getUserToken(), nil
+	}
+
+	return nil, err
 }

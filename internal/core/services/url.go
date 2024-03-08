@@ -6,6 +6,12 @@ import (
 	"github.com/lafetz/url-shortner/internal/core/ports"
 )
 
+type UrlServiceApi interface {
+	GetUrls(uuid.UUID) ([]*domain.Url, error)
+	GetUrl(string) (*domain.Url, error)
+	AddUrl(*domain.Url) (*domain.Url, error)
+	DeleteUrl(string, uuid.UUID) error
+}
 type UrlService struct {
 	repo ports.UrlRepository
 }
@@ -30,11 +36,6 @@ func (srv *UrlService) AddUrl(url *domain.Url) (*domain.Url, error) {
 	url.ShortUrl = truncatedID
 	return srv.repo.AddUrl(url)
 }
-
-// func (srv *UrlService) UpdateUrl(url *domain.Url) error {
-
-//		return srv.repo.UpdateUrl(url)
-//	}
-func (srv *UrlService) DeleteUrl(id uuid.UUID) error {
-	return srv.repo.DeleteUrl(id)
+func (srv *UrlService) DeleteUrl(shortUrl string, userId uuid.UUID) error {
+	return srv.repo.DeleteUrl(shortUrl)
 }

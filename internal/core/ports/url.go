@@ -9,6 +9,5 @@ type UrlRepository interface {
 	GetUrls(userId uuid.UUID) ([]*domain.Url, error)
 	GetUrl(shortUrl string) (*domain.Url, error)
 	AddUrl(*domain.Url) (*domain.Url, error)
-	// UpdateUrl(*domain.Url) error
-	DeleteUrl(uuid.UUID) error
+	DeleteUrl(string) error
 }

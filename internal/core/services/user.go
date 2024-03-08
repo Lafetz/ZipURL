@@ -6,10 +6,9 @@ import (
 	"github.com/lafetz/url-shortner/internal/core/ports"
 )
 
-type UserServicePort interface {
+type UserServiceApi interface {
 	GetUser(string) (*domain.User, error)
 	AddUser(*domain.User) (*domain.User, error)
-	// UpdateUser(*domain.User) error
 	DeleteUser(uuid.UUID) error
 }
 type UserService struct {

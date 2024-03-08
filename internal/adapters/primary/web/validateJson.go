@@ -8,7 +8,6 @@ import (
 
 func ValidateModel(err error) map[string]string {
 	errors := make(map[string]string)
-
 	for _, err := range err.(validator.ValidationErrors) {
 
 		errors[strings.ToLower(err.Field())] = errorMsgs(err.Tag(), err.Param())

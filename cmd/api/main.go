@@ -16,6 +16,6 @@ func main() {
 	repo := repository.NewDb(db)
 	userService := services.NewUserService(repo)
 	urlService := services.NewUrlService(repo)
-	application := web.NewApp(userService, *urlService)
+	application := web.NewApp(userService, urlService)
 	application.Run()
 }
