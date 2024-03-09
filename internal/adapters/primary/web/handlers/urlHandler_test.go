@@ -1,4 +1,4 @@
-package web
+package handlers
 
 import (
 	"log"
@@ -9,6 +9,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	jwt_auth "github.com/lafetz/url-shortner/internal/adapters/primary/web/jwt"
+	"github.com/lafetz/url-shortner/internal/adapters/primary/web/middleware"
 	"github.com/lafetz/url-shortner/internal/core/domain"
 	"github.com/stretchr/testify/assert"
 )
@@ -35,12 +37,12 @@ func (srv *mockUrlService) DeleteUrl(shorturl string, userId uuid.UUID) error {
 
 func TestCreateUrl(t *testing.T) {
 	mockService := mockUrlService{}
-	createUrlHandler := createUrl(&mockService)
+	createUrlHandler := CreateUrl(&mockService)
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
-	router.POST("/urls", requireAuth(), createUrlHandler)
+	router.POST("/urls", middleware.RequireAuth(), createUrlHandler)
 	user := domain.NewUser("username", "email@Email.com", []byte("stuff"))
-	token, err := createJwt(user)
+	token, err := jwt_auth.CreateJwt(user)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -91,12 +93,12 @@ func TestCreateUrl(t *testing.T) {
 
 func TestDeleteUrl(t *testing.T) {
 	mockService := mockUrlService{}
-	deleteUrlHandler := deleteUrl(&mockService)
+	deleteUrlHandler := DeleteUrl(&mockService)
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
-	router.DELETE("/urls/:shorturl", requireAuth(), deleteUrlHandler)
+	router.DELETE("/urls/:shorturl", middleware.RequireAuth(), deleteUrlHandler)
 	user := domain.NewUser("username", "email@Email.com", []byte("stuff"))
-	token, err := createJwt(user)
+	token, err := jwt_auth.CreateJwt(user)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -127,12 +129,12 @@ func TestDeleteUrl(t *testing.T) {
 
 func TestGetUrls(t *testing.T) {
 	mockService := mockUrlService{}
-	getUrlHandler := getUrls(&mockService)
+	getUrlHandler := GetUrls(&mockService)
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
-	router.GET("/urls", requireAuth(), getUrlHandler)
+	router.GET("/urls", middleware.RequireAuth(), getUrlHandler)
 	user := domain.NewUser("username", "email@Email.com", []byte("stuff"))
-	token, err := createJwt(user)
+	token, err := jwt_auth.CreateJwt(user)
 	if err != nil {
 		log.Fatal(err)
 	}

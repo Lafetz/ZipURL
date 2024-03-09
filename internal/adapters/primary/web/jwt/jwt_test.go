@@ -1,4 +1,4 @@
-package web
+package jwt_auth
 
 import (
 	"log"
@@ -11,7 +11,7 @@ import (
 func TestJwt(t *testing.T) {
 	t.Run("Successfuly create jwt", func(t *testing.T) {
 		user := domain.NewUser("username", "email@Email.com", []byte("stuff"))
-		token, err := createJwt(user)
+		token, err := CreateJwt(user)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -22,11 +22,11 @@ func TestJwt(t *testing.T) {
 
 	t.Run("Successfuly parse token", func(t *testing.T) {
 		user := domain.NewUser("username", "email@Email.com", []byte("stuff"))
-		token, err := createJwt(user)
+		token, err := CreateJwt(user)
 		if err != nil {
 			log.Fatal(err)
 		}
-		_, err = pareseJwt(token)
+		_, err = PareseJwt(token)
 		assert.Nil(t, err)
 	})
 

@@ -1,10 +1,11 @@
-package web
+package middleware
 
 import (
 	"github.com/gin-gonic/gin"
+	jwt_auth "github.com/lafetz/url-shortner/internal/adapters/primary/web/jwt"
 )
 
-func requireAuth() gin.HandlerFunc {
+func RequireAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		jwtToken, err := c.Cookie("Authorization")
 		if err != nil {
@@ -14,9 +15,9 @@ func requireAuth() gin.HandlerFunc {
 			return
 		}
 
-		user, err := pareseJwt(jwtToken)
+		user, err := jwt_auth.PareseJwt(jwtToken)
 		if err != nil {
-			if err == ErrInvalidToken {
+			if err == jwt_auth.ErrInvalidToken {
 				c.JSON(401, gin.H{
 					"Error": "Unauthorized",
 				})
@@ -27,7 +28,7 @@ func requireAuth() gin.HandlerFunc {
 			return
 
 		}
-		c.Set("user", user)
+		c.Set("user", user.GetUserToken())
 
 		c.Next()
 	}

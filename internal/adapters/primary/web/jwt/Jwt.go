@@ -1,4 +1,4 @@
-package web
+package jwt_auth
 
 import (
 	"errors"
@@ -8,6 +8,12 @@ import (
 	"github.com/lafetz/url-shortner/internal/core/domain"
 )
 
+type UserToken struct {
+	Id       string
+	Email    string
+	Username string
+}
+
 type UserClaim struct {
 	jwt.RegisteredClaims
 	Id       string
@@ -15,8 +21,8 @@ type UserClaim struct {
 	Username string
 }
 
-func (u *UserClaim) getUserToken() *userToken {
-	return &userToken{
+func (u *UserClaim) GetUserToken() *UserToken {
+	return &UserToken{
 		Id:       u.Id,
 		Email:    u.Email,
 		Username: u.Email,
@@ -28,7 +34,7 @@ var (
 	ErrInvalidToken = errors.New("token not valid")
 )
 
-func createJwt(user *domain.User) (string, error) {
+func CreateJwt(user *domain.User) (string, error) {
 	KEY := "temporaryKEy"
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, UserClaim{RegisteredClaims: jwt.RegisteredClaims{Issuer: "github.com/lafetz/snippitstash",
@@ -45,7 +51,7 @@ func createJwt(user *domain.User) (string, error) {
 	return jwtToken, err
 
 }
-func pareseJwt(jwtToken string) (*userToken, error) {
+func PareseJwt(jwtToken string) (*UserClaim, error) {
 	KEY := "temporaryKEy"
 	token, err := jwt.ParseWithClaims(jwtToken, &UserClaim{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(KEY), nil
@@ -55,7 +61,7 @@ func pareseJwt(jwtToken string) (*userToken, error) {
 	}
 
 	if claims, ok := token.Claims.(*UserClaim); ok && token.Valid {
-		return claims.getUserToken(), nil
+		return claims, nil
 	}
 
 	return nil, err

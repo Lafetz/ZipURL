@@ -36,5 +36,6 @@ func (srv *UrlService) AddUrl(url *domain.Url) (*domain.Url, error) {
 	return srv.repo.AddUrl(url)
 }
 func (srv *UrlService) DeleteUrl(shortUrl string, userId uuid.UUID) error {
+
 	return srv.repo.DeleteUrl(shortUrl)
 }

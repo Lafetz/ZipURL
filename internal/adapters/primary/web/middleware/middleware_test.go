@@ -1,4 +1,4 @@
-package web
+package middleware
 
 import (
 	"log"
@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	jwt_auth "github.com/lafetz/url-shortner/internal/adapters/primary/web/jwt"
 	"github.com/lafetz/url-shortner/internal/core/domain"
 	"github.com/stretchr/testify/assert"
 )
@@ -14,7 +15,7 @@ import (
 func TestRequireAuth(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
-	router.POST("/", requireAuth())
+	router.POST("/", RequireAuth())
 	t.Run("Returns error if cookie is missing", func(t *testing.T) {
 		w := httptest.NewRecorder()
 		req, err := http.NewRequest(http.MethodPost, "/", nil)
@@ -44,7 +45,7 @@ func TestRequireAuth(t *testing.T) {
 	t.Run("Successful if token is valid", func(t *testing.T) {
 		w := httptest.NewRecorder()
 		user := domain.NewUser("username", "email@Email.com", []byte("stuff"))
-		token, err := createJwt(user)
+		token, err := jwt_auth.CreateJwt(user)
 		if err != nil {
 			log.Fatal(err)
 		}

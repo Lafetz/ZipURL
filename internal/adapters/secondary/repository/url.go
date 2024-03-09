@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/lafetz/url-shortner/internal/core/domain"
+	"github.com/lafetz/url-shortner/internal/core/services"
 )
 
 func (store *Store) GetUrls(userId uuid.UUID) ([]*domain.Url, error) {
@@ -74,7 +75,7 @@ WHERE id = $1`
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return nil, errors.New("err no record found it says")
+			return nil, services.ErrUrlNotFound
 		default:
 			return nil, err
 		}
@@ -94,8 +95,8 @@ func (store *Store) AddUrl(url *domain.Url) (*domain.Url, error) {
 	err := store.db.QueryRowContext(ctx, query, args...).Scan(&url.CreatedAt)
 	if err != nil {
 		switch {
-		case err.Error() == `pq: duplicate key value violates unique constraint "users_email_key"`:
-			return nil, err
+		case err.Error() == `pq: duplicate key value violates unique constraint "urls_short_url_key"`:
+			return nil, services.ErrDepulicateShortUrl
 		default:
 			return nil, err
 		}
@@ -119,7 +120,7 @@ func (store *Store) DeleteUrl(shorturl string) error {
 	}
 
 	if rowsAffected == 0 {
-		return errors.New("err no record found it says") //ErrRecordNotFound
+		return services.ErrUrlNotFound
 	}
 	return nil
 }

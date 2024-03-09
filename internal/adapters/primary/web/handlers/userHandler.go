@@ -1,4 +1,4 @@
-package web
+package handlers
 
 import (
 	"fmt"
@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
+	jwt_auth "github.com/lafetz/url-shortner/internal/adapters/primary/web/jwt"
 	"github.com/lafetz/url-shortner/internal/core/domain"
 	"github.com/lafetz/url-shortner/internal/core/services"
 )
@@ -17,7 +18,7 @@ type UserCreateBody struct {
 	Password string    `json:"password" binding:"required,min=8,max=50" `
 }
 
-func createUser(userService services.UserServiceApi) gin.HandlerFunc {
+func CreateUser(userService services.UserServiceApi) gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 		var ginUser UserCreateBody
@@ -70,7 +71,7 @@ type userSignin struct {
 	Password string `json:"password" binding:"required,min=8,max=500" `
 }
 
-func signin(userService services.UserServiceApi) gin.HandlerFunc {
+func Signin(userService services.UserServiceApi) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		var ginUser userSignin
@@ -104,7 +105,7 @@ func signin(userService services.UserServiceApi) gin.HandlerFunc {
 			return
 		}
 
-		token, err := createJwt(user)
+		token, err := jwt_auth.CreateJwt(user)
 		if err != nil {
 			c.Status(500)
 

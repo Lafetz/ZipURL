@@ -1,4 +1,4 @@
-package web
+package handlers
 
 import (
 	"fmt"
@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
+	jwt_auth "github.com/lafetz/url-shortner/internal/adapters/primary/web/jwt"
 	"github.com/lafetz/url-shortner/internal/core/domain"
 	"github.com/lafetz/url-shortner/internal/core/services"
 )
@@ -14,7 +15,7 @@ type createUrlReq struct {
 	OriginalUrl string `json:"originalUrl" binding:"required,min=5" `
 }
 
-func createUrl(urlService services.UrlServiceApi) gin.HandlerFunc {
+func CreateUrl(urlService services.UrlServiceApi) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user, exists := c.Get("user")
 		if !exists {
@@ -39,7 +40,7 @@ func createUrl(urlService services.UrlServiceApi) gin.HandlerFunc {
 			return
 		}
 
-		id, err := uuid.Parse(user.(*userToken).Id)
+		id, err := uuid.Parse(user.(*jwt_auth.UserToken).Id)
 		if err != nil {
 			c.JSON(500, gin.H{
 				"Error": "Internal Server Error",
@@ -62,7 +63,7 @@ func createUrl(urlService services.UrlServiceApi) gin.HandlerFunc {
 	}
 }
 
-func deleteUrl(urlService services.UrlServiceApi) gin.HandlerFunc {
+func DeleteUrl(urlService services.UrlServiceApi) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user, exists := c.Get("user")
 		if !exists {
@@ -72,7 +73,7 @@ func deleteUrl(urlService services.UrlServiceApi) gin.HandlerFunc {
 			return
 		}
 		id := c.Param("shorturl")
-		userId, err := uuid.Parse(user.(*userToken).Id)
+		userId, err := uuid.Parse(user.(*jwt_auth.UserToken).Id)
 		if err != nil {
 			c.JSON(500, gin.H{
 				"Error": "Internal Server Error",
@@ -92,13 +93,13 @@ func deleteUrl(urlService services.UrlServiceApi) gin.HandlerFunc {
 	}
 }
 
-func getUrls(urlService services.UrlServiceApi) gin.HandlerFunc {
+func GetUrls(urlService services.UrlServiceApi) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user, exists := c.Get("user")
 		if !exists {
 			return
 		}
-		id, err := uuid.Parse(user.(*userToken).Id)
+		id, err := uuid.Parse(user.(*jwt_auth.UserToken).Id)
 		if err != nil {
 			c.JSON(500, gin.H{
 				"Error": "Internal Server Error",

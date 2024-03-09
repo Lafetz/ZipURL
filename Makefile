@@ -1,9 +1,5 @@
-
-# confirm:
-# 	@echo -n 'Are you sure? [y/N] ' && read ans && [ $${ans:-N} = y ]
-# .PHONY: run
 run:
-	@go run ./cmd/api *
+	go run ./cmd/api/main.go
 .PHONY: db/migrations/new
 # db/migrations/new:
 # 	@echo 'Creating migration files for ${name}...'

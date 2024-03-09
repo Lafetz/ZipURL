@@ -1,4 +1,4 @@
-package web
+package handlers
 
 import (
 	"log"
@@ -35,7 +35,7 @@ func (srv *mockUsersService) DeleteUser(id uuid.UUID) error {
 
 func TestCreateUser(t *testing.T) {
 	mockService := mockUsersService{}
-	createUserHandler := createUser(&mockService)
+	createUserHandler := CreateUser(&mockService)
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 	router.POST("/signup", createUserHandler)
@@ -86,7 +86,7 @@ func TestCreateUser(t *testing.T) {
 }
 func TestSignIn(t *testing.T) {
 	mockService := &mockUsersService{}
-	createUserHandler := signin(mockService)
+	createUserHandler := Signin(mockService)
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 	router.POST("/signin", createUserHandler)
