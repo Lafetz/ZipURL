@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	jwt_auth "github.com/lafetz/url-shortner/internal/adapters/primary/web/jwt"
+	jwtauth "github.com/lafetz/url-shortner/internal/adapters/primary/web/jwt"
 )
 
 func RequireAuth() gin.HandlerFunc {
@@ -15,9 +15,9 @@ func RequireAuth() gin.HandlerFunc {
 			return
 		}
 
-		user, err := jwt_auth.PareseJwt(jwtToken)
+		user, err := jwtauth.PareseJwt(jwtToken)
 		if err != nil {
-			if err == jwt_auth.ErrInvalidToken {
+			if err == jwtauth.ErrInvalidToken {
 				c.JSON(401, gin.H{
 					"Error": "Unauthorized",
 				})

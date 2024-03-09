@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
-	jwt_auth "github.com/lafetz/url-shortner/internal/adapters/primary/web/jwt"
+	jwtauth "github.com/lafetz/url-shortner/internal/adapters/primary/web/jwt"
 	"github.com/lafetz/url-shortner/internal/core/domain"
 	"github.com/lafetz/url-shortner/internal/core/services"
 )
@@ -105,7 +105,7 @@ func Signin(userService services.UserServiceApi) gin.HandlerFunc {
 			return
 		}
 
-		token, err := jwt_auth.CreateJwt(user)
+		token, err := jwtauth.CreateJwt(user)
 		if err != nil {
 			c.Status(500)
 

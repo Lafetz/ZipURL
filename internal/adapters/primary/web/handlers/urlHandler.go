@@ -6,7 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
-	jwt_auth "github.com/lafetz/url-shortner/internal/adapters/primary/web/jwt"
+	jsonformatter "github.com/lafetz/url-shortner/internal/adapters/primary/web/formatter"
+	jwtauth "github.com/lafetz/url-shortner/internal/adapters/primary/web/jwt"
 	"github.com/lafetz/url-shortner/internal/core/domain"
 	"github.com/lafetz/url-shortner/internal/core/services"
 )
@@ -40,14 +41,14 @@ func CreateUrl(urlService services.UrlServiceApi) gin.HandlerFunc {
 			return
 		}
 
-		id, err := uuid.Parse(user.(*jwt_auth.UserToken).Id)
+		id, err := uuid.Parse(user.(*jwtauth.UserToken).Id)
 		if err != nil {
 			c.JSON(500, gin.H{
 				"Error": "Internal Server Error",
 			})
 		}
 		domainUrl := domain.NewUrl(id, ginUrl.OriginalUrl)
-		_, err = urlService.AddUrl(domainUrl)
+		url, err := urlService.AddUrl(domainUrl)
 		if err != nil {
 			fmt.Print(err)
 			c.JSON(500, gin.H{
@@ -55,9 +56,11 @@ func CreateUrl(urlService services.UrlServiceApi) gin.HandlerFunc {
 			})
 			return
 		}
+		res := jsonformatter.NewUrlResp(url)
+
 		c.JSON(201, gin.H{
 			"message": "url added",
-			"url":     domainUrl,
+			"url":     res,
 		})
 
 	}
@@ -73,7 +76,7 @@ func DeleteUrl(urlService services.UrlServiceApi) gin.HandlerFunc {
 			return
 		}
 		id := c.Param("shorturl")
-		userId, err := uuid.Parse(user.(*jwt_auth.UserToken).Id)
+		userId, err := uuid.Parse(user.(*jwtauth.UserToken).Id)
 		if err != nil {
 			c.JSON(500, gin.H{
 				"Error": "Internal Server Error",
@@ -99,7 +102,7 @@ func GetUrls(urlService services.UrlServiceApi) gin.HandlerFunc {
 		if !exists {
 			return
 		}
-		id, err := uuid.Parse(user.(*jwt_auth.UserToken).Id)
+		id, err := uuid.Parse(user.(*jwtauth.UserToken).Id)
 		if err != nil {
 			c.JSON(500, gin.H{
 				"Error": "Internal Server Error",
@@ -113,8 +116,11 @@ func GetUrls(urlService services.UrlServiceApi) gin.HandlerFunc {
 			})
 			return
 		}
+
+		res := jsonformatter.NewUrlsResp(urls)
+
 		c.JSON(200, gin.H{
-			"urls": urls,
+			"urls": res,
 		})
 	}
 }

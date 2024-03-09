@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	jwt_auth "github.com/lafetz/url-shortner/internal/adapters/primary/web/jwt"
+	jwtauth "github.com/lafetz/url-shortner/internal/adapters/primary/web/jwt"
 	"github.com/lafetz/url-shortner/internal/core/domain"
 	"github.com/stretchr/testify/assert"
 )
@@ -45,7 +45,7 @@ func TestRequireAuth(t *testing.T) {
 	t.Run("Successful if token is valid", func(t *testing.T) {
 		w := httptest.NewRecorder()
 		user := domain.NewUser("username", "email@Email.com", []byte("stuff"))
-		token, err := jwt_auth.CreateJwt(user)
+		token, err := jwtauth.CreateJwt(user)
 		if err != nil {
 			log.Fatal(err)
 		}

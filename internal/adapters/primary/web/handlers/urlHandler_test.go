@@ -9,7 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	jwt_auth "github.com/lafetz/url-shortner/internal/adapters/primary/web/jwt"
+	jwtauth "github.com/lafetz/url-shortner/internal/adapters/primary/web/jwt"
 	"github.com/lafetz/url-shortner/internal/adapters/primary/web/middleware"
 	"github.com/lafetz/url-shortner/internal/core/domain"
 	"github.com/stretchr/testify/assert"
@@ -42,7 +42,7 @@ func TestCreateUrl(t *testing.T) {
 	router := gin.Default()
 	router.POST("/urls", middleware.RequireAuth(), createUrlHandler)
 	user := domain.NewUser("username", "email@Email.com", []byte("stuff"))
-	token, err := jwt_auth.CreateJwt(user)
+	token, err := jwtauth.CreateJwt(user)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -98,7 +98,7 @@ func TestDeleteUrl(t *testing.T) {
 	router := gin.Default()
 	router.DELETE("/urls/:shorturl", middleware.RequireAuth(), deleteUrlHandler)
 	user := domain.NewUser("username", "email@Email.com", []byte("stuff"))
-	token, err := jwt_auth.CreateJwt(user)
+	token, err := jwtauth.CreateJwt(user)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -134,7 +134,7 @@ func TestGetUrls(t *testing.T) {
 	router := gin.Default()
 	router.GET("/urls", middleware.RequireAuth(), getUrlHandler)
 	user := domain.NewUser("username", "email@Email.com", []byte("stuff"))
-	token, err := jwt_auth.CreateJwt(user)
+	token, err := jwtauth.CreateJwt(user)
 	if err != nil {
 		log.Fatal(err)
 	}
