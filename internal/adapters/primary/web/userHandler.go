@@ -1,6 +1,8 @@
 package web
 
 import (
+	"fmt"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
@@ -15,7 +17,6 @@ type UserCreateBody struct {
 	Password string    `json:"password" binding:"required,min=8,max=50" `
 }
 
-// (a *App)
 func createUser(userService services.UserServiceApi) gin.HandlerFunc {
 
 	return func(c *gin.Context) {
@@ -49,6 +50,10 @@ func createUser(userService services.UserServiceApi) gin.HandlerFunc {
 		_, err = userService.AddUser(domainUser)
 
 		if err != nil {
+			fmt.Println(err)
+			c.JSON(500, gin.H{
+				"Error": "internal server Error",
+			})
 			return
 		}
 
@@ -106,7 +111,7 @@ func signin(userService services.UserServiceApi) gin.HandlerFunc {
 			return
 		}
 
-		c.SetCookie("authorization", token, 24*60*60, "/", "localhost", true, true)
+		c.SetCookie("Authorization", token, 24*60*60, "/", "localhost", true, true)
 		c.JSON(200, gin.H{
 			"message": "success",
 		})

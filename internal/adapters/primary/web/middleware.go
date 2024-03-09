@@ -4,12 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type userToken struct {
-	Id       string
-	Email    string
-	Username string
-}
-
 func requireAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		jwtToken, err := c.Cookie("Authorization")

@@ -1,6 +1,8 @@
 package web
 
 import (
+	"fmt"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
@@ -46,6 +48,10 @@ func createUrl(urlService services.UrlServiceApi) gin.HandlerFunc {
 		domainUrl := domain.NewUrl(id, ginUrl.OriginalUrl)
 		_, err = urlService.AddUrl(domainUrl)
 		if err != nil {
+			fmt.Print(err)
+			c.JSON(500, gin.H{
+				"Error": "Internal Server Error",
+			})
 			return
 		}
 		c.JSON(201, gin.H{
@@ -74,8 +80,9 @@ func deleteUrl(urlService services.UrlServiceApi) gin.HandlerFunc {
 		}
 		err = urlService.DeleteUrl(id, userId)
 		if err != nil {
-			c.JSON(400, gin.H{
-				"Error": "Internal Server Error database or service",
+			fmt.Print(err)
+			c.JSON(500, gin.H{
+				"Error": "Internal Server Error",
 			})
 			return
 		}
@@ -99,6 +106,10 @@ func getUrls(urlService services.UrlServiceApi) gin.HandlerFunc {
 		}
 		urls, err := urlService.GetUrls(id)
 		if err != nil {
+			fmt.Print(err)
+			c.JSON(500, gin.H{
+				"Error": "Internal Server Error",
+			})
 			return
 		}
 		c.JSON(200, gin.H{

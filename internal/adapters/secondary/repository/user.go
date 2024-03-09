@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -16,7 +15,7 @@ func (store *Store) GetUser(username string) (*domain.User, error) {
 	SELECT id, created_at, username, email, hashed_password
 	FROM users
 	WHERE username = $1`
-	var user *domain.User
+	var user domain.User
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	err := store.db.QueryRowContext(ctx, query, username).Scan(&user.Id,
@@ -25,25 +24,27 @@ func (store *Store) GetUser(username string) (*domain.User, error) {
 		&user.Email,
 		&user.Password,
 	)
+
 	if err != nil {
 		return nil, err
 	}
-	return user, nil
+	return &user, nil
 }
 func (store *Store) AddUser(user *domain.User) (*domain.User, error) {
 	query := `
 INSERT INTO users (id,username, email, hashed_password)
 VALUES ($1, $2, $3,$4)
-RETURNING id, created_at, version`
+RETURNING created_at`
 	args := []interface{}{user.Id, user.Username, user.Email, user.Password}
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	err := store.db.QueryRowContext(ctx, query, args...).Scan(&user.CreatedAt)
 	if err != nil {
-		fmt.Print(err)
 		switch {
 		case err.Error() == `pq: duplicate key value violates unique constraint "users_email_key"`:
 			return nil, services.ErrEmailUnique
+		case err.Error() == `pq: duplicate key value violates unique constraint "users_username_key"`:
+			return nil, services.ErrUsernameUnique
 		default:
 			return nil, err
 		}
