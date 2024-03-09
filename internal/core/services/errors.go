@@ -1,6 +1,8 @@
 package services
 
-import "errors"
+import (
+	"errors"
+)
 
 var (
 	ErrUserNotFound   = errors.New("user not Found")
@@ -8,3 +10,8 @@ var (
 	ErrDelete         = errors.New("failed to Delete User")
 	ErrEmailUnique    = errors.New("an account with this Email exists")
 )
+var (
+	ErrMaxUrl = errors.New("max amount of url reached")
+)
+
+//+ strconv.Itoa(maxurl)

@@ -1,8 +1,6 @@
 package web
 
 import (
-	"fmt"
-
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
@@ -25,7 +23,7 @@ func createUrl(urlService services.UrlServiceApi) gin.HandlerFunc {
 		var ginUrl createUrlReq
 		if err := c.ShouldBind(&ginUrl); err != nil {
 			_, ok := err.(validator.ValidationErrors)
-			fmt.Print(err)
+
 			if ok {
 				c.JSON(422, gin.H{
 					"Errors": ValidateModel(err),

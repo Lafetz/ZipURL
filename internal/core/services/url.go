@@ -27,12 +27,11 @@ func (srv *UrlService) GetUrls(userId uuid.UUID) ([]*domain.Url, error) {
 func (srv *UrlService) GetUrl(shortUrl string) (*domain.Url, error) {
 	return srv.repo.GetUrl(shortUrl)
 }
+
 func (srv *UrlService) AddUrl(url *domain.Url) (*domain.Url, error) {
 
 	id := uuid.New().String()
 	truncatedID := id[:7]
-	//
-
 	url.ShortUrl = truncatedID
 	return srv.repo.AddUrl(url)
 }

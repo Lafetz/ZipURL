@@ -1,8 +1,6 @@
 package web
 
 import (
-	"fmt"
-
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
@@ -48,12 +46,12 @@ func createUser(userService services.UserServiceApi) gin.HandlerFunc {
 		}
 		domainUser := domain.NewUser(ginUser.Username, ginUser.Email, hashPassword)
 
-		user, err := userService.AddUser(domainUser)
+		_, err = userService.AddUser(domainUser)
 
 		if err != nil {
 			return
 		}
-		fmt.Printf("user is %s", user)
+
 		c.JSON(201, gin.H{
 			"message": "success",
 			// "user":    user,

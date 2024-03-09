@@ -13,7 +13,7 @@ import (
 
 func (store *Store) GetUser(username string) (*domain.User, error) {
 	query := `
-	SELECT id, created_at, name, email, password
+	SELECT id, created_at, username, email, hashed_password
 	FROM users
 	WHERE username = $1`
 	var user *domain.User
@@ -32,7 +32,7 @@ func (store *Store) GetUser(username string) (*domain.User, error) {
 }
 func (store *Store) AddUser(user *domain.User) (*domain.User, error) {
 	query := `
-INSERT INTO users (id,username, email, password)
+INSERT INTO users (id,username, email, hashed_password)
 VALUES ($1, $2, $3,$4)
 RETURNING id, created_at, version`
 	args := []interface{}{user.Id, user.Username, user.Email, user.Password}

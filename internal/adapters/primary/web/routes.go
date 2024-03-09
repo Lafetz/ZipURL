@@ -9,9 +9,9 @@ func (a *App) initAppRoutes() {
 	//
 	a.gin.GET("/urls", requireAuth(), getUrls(a.urlService))
 	a.gin.POST("/urls", requireAuth(), createUrl(a.urlService))
-	a.gin.DELETE("/urls/:shorturl", deleteUrl(a.urlService))
+	a.gin.DELETE("/urls/:shorturl", requireAuth(), deleteUrl(a.urlService))
 	//
-	a.gin.GET("/ping", requireAuth(), func(c *gin.Context) {
+	a.gin.GET("/ping", func(c *gin.Context) {
 		c.String(200, "woking...")
 	})
 }

@@ -102,12 +102,12 @@ func (store *Store) AddUrl(url *domain.Url) (*domain.Url, error) {
 	return nil, nil
 }
 
-func (store *Store) DeleteUrl(id uuid.UUID) error {
+func (store *Store) DeleteUrl(shorturl string) error {
 	query := `
 	DELETE FROM urls
-	WHERE id = $1`
+	WHERE short_url = $1`
 
-	result, err := store.db.Exec(query, id)
+	result, err := store.db.Exec(query, shorturl)
 	if err != nil {
 		return err
 	}
