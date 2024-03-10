@@ -16,6 +16,7 @@ type UrlResp struct {
 }
 
 func NewUrlResp(url *domain.Url) *UrlResp {
+
 	return &UrlResp{
 		Id:          url.Id,
 		UserId:      url.UserId,
@@ -25,7 +26,7 @@ func NewUrlResp(url *domain.Url) *UrlResp {
 	}
 }
 func NewUrlsResp(urls []*domain.Url) []*UrlResp {
-	resp := []*UrlResp{} // return at least an empty array (not nil)
+	resp := []*UrlResp{}
 	for _, url := range urls {
 
 		resp = append(resp, NewUrlResp(url))

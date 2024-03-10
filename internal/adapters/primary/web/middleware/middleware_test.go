@@ -23,7 +23,7 @@ func TestRequireAuth(t *testing.T) {
 			log.Fatal(err)
 		}
 		router.ServeHTTP(w, req)
-		assert.Equal(t, 401, w.Code)
+		assert.Equal(t, http.StatusUnauthorized, w.Code)
 
 	})
 	t.Run("Returns error if token is invalid", func(t *testing.T) {
@@ -39,7 +39,7 @@ func TestRequireAuth(t *testing.T) {
 			log.Fatal(err)
 		}
 		router.ServeHTTP(w, req)
-		assert.Equal(t, 401, w.Code)
+		assert.Equal(t, http.StatusUnauthorized, w.Code)
 
 	})
 	t.Run("Successful if token is valid", func(t *testing.T) {
@@ -60,7 +60,7 @@ func TestRequireAuth(t *testing.T) {
 			log.Fatal(err)
 		}
 		router.ServeHTTP(w, req)
-		assert.Equal(t, 200, w.Code)
+		assert.Equal(t, http.StatusOK, w.Code)
 
 	})
 

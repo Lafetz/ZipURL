@@ -1,7 +1,8 @@
 package handlers
 
 import (
-	"fmt"
+	"errors"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -25,13 +26,13 @@ func CreateUser(userService services.UserServiceApi) gin.HandlerFunc {
 		if err := c.ShouldBindJSON(&ginUser); err != nil {
 			_, ok := err.(validator.ValidationErrors)
 			if ok {
-				c.JSON(422, gin.H{
+				c.JSON(http.StatusUnprocessableEntity, gin.H{
 					"Errors": ValidateModel(err),
 				})
 				return
 
 			}
-			c.JSON(400, gin.H{
+			c.JSON(http.StatusBadRequest, gin.H{
 				"Error": "Error processing request body",
 			})
 			return
@@ -40,7 +41,7 @@ func CreateUser(userService services.UserServiceApi) gin.HandlerFunc {
 		hashPassword, err := hashPassword(ginUser.Password)
 
 		if err != nil {
-			c.JSON(500, gin.H{
+			c.JSON(http.StatusInternalServerError, gin.H{
 				"Error": "internal server Error",
 			})
 			return
@@ -51,16 +52,21 @@ func CreateUser(userService services.UserServiceApi) gin.HandlerFunc {
 		_, err = userService.AddUser(domainUser)
 
 		if err != nil {
-			fmt.Println(err)
-			c.JSON(500, gin.H{
+
+			if errors.Is(err, services.ErrEmailUnique) || errors.Is(err, services.ErrUsernameUnique) {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"Error": err.Error(),
+				})
+				return
+			}
+			c.JSON(http.StatusInternalServerError, gin.H{
 				"Error": "internal server Error",
 			})
 			return
 		}
 
-		c.JSON(201, gin.H{
-			"message": "success",
-			// "user":    user,
+		c.JSON(http.StatusCreated, gin.H{
+			"message": "success,sigin to continue",
 		})
 	}
 
@@ -79,27 +85,27 @@ func Signin(userService services.UserServiceApi) gin.HandlerFunc {
 			_, ok := err.(validator.ValidationErrors)
 			if ok {
 
-				c.JSON(422, gin.H{
+				c.JSON(http.StatusUnprocessableEntity, gin.H{
 					"Errors": ValidateModel(err),
 				})
 				return
 
 			}
-			c.JSON(400, gin.H{
+			c.JSON(http.StatusBadRequest, gin.H{
 				"Error": "Error processing request body",
 			})
 			return
 		}
 		user, err := userService.GetUser(ginUser.Username)
 		if err != nil {
-			c.JSON(401, gin.H{
+			c.JSON(http.StatusUnauthorized, gin.H{
 				"message": "Incorrect username or password",
 			})
 			return
 		}
 		err = matchPassword(ginUser.Password, user.Password)
 		if err != nil {
-			c.JSON(401, gin.H{
+			c.JSON(http.StatusUnauthorized, gin.H{
 				"message": "Incorrect username or password",
 			})
 			return
@@ -107,13 +113,14 @@ func Signin(userService services.UserServiceApi) gin.HandlerFunc {
 
 		token, err := jwtauth.CreateJwt(user)
 		if err != nil {
-			c.Status(500)
-
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"Error": "internal server Error",
+			})
 			return
 		}
 
 		c.SetCookie("Authorization", token, 24*60*60, "/", "localhost", true, true)
-		c.JSON(200, gin.H{
+		c.JSON(http.StatusOK, gin.H{
 			"message": "success",
 		})
 

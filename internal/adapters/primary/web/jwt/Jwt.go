@@ -2,6 +2,7 @@ package jwtauth
 
 import (
 	"errors"
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -35,11 +36,11 @@ var (
 )
 
 func CreateJwt(user *domain.User) (string, error) {
-	KEY := "temporaryKEy"
+	KEY := os.Getenv("JWT_TOKEN")
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, UserClaim{RegisteredClaims: jwt.RegisteredClaims{Issuer: "github.com/lafetz/snippitstash",
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
-		Audience:  jwt.ClaimStrings{"github.com/lafetz/snippitstash"},
+		Audience:  jwt.ClaimStrings{"github.com/lafetz/ZipUrl"},
 		NotBefore: jwt.NewNumericDate(time.Now()),
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour))},
 		Id:       user.Id.String(),
@@ -52,7 +53,7 @@ func CreateJwt(user *domain.User) (string, error) {
 
 }
 func PareseJwt(jwtToken string) (*UserClaim, error) {
-	KEY := "temporaryKEy"
+	KEY := os.Getenv("JWT_TOKEN")
 	token, err := jwt.ParseWithClaims(jwtToken, &UserClaim{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(KEY), nil
 	})

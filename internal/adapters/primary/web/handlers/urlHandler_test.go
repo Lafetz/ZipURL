@@ -58,11 +58,11 @@ func TestCreateUrl(t *testing.T) {
 		{
 			name: "OriginalUrl Required",
 			json: strings.NewReader(string(`{}`)),
-			code: 422,
+			code: http.StatusUnprocessableEntity,
 		}, {
 			name: "Successfully create url",
 			json: strings.NewReader(string(`{	 "originalUrl":"wxosoitsorlxd"}`)),
-			code: 201,
+			code: http.StatusCreated,
 		}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -87,7 +87,7 @@ func TestCreateUrl(t *testing.T) {
 			log.Fatal(err)
 		}
 		router.ServeHTTP(w, req)
-		assert.Equal(t, 401, w.Code)
+		assert.Equal(t, http.StatusUnauthorized, w.Code)
 	})
 }
 
@@ -113,7 +113,7 @@ func TestDeleteUrl(t *testing.T) {
 			log.Fatal(err)
 		}
 		router.ServeHTTP(w, req)
-		assert.Equal(t, 401, w.Code)
+		assert.Equal(t, http.StatusUnauthorized, w.Code)
 	})
 	t.Run("successfully delete url", func(t *testing.T) {
 		w := httptest.NewRecorder()
@@ -123,7 +123,7 @@ func TestDeleteUrl(t *testing.T) {
 			log.Fatal(err)
 		}
 		router.ServeHTTP(w, req)
-		assert.Equal(t, 200, w.Code)
+		assert.Equal(t, http.StatusOK, w.Code)
 	})
 }
 
@@ -149,7 +149,7 @@ func TestGetUrls(t *testing.T) {
 			log.Fatal(err)
 		}
 		router.ServeHTTP(w, req)
-		assert.Equal(t, 401, w.Code)
+		assert.Equal(t, http.StatusUnauthorized, w.Code)
 	})
 	t.Run("get urls", func(t *testing.T) {
 		w := httptest.NewRecorder()
@@ -159,6 +159,6 @@ func TestGetUrls(t *testing.T) {
 			log.Fatal(err)
 		}
 		router.ServeHTTP(w, req)
-		assert.Equal(t, 200, w.Code)
+		assert.Equal(t, http.StatusOK, w.Code)
 	})
 }

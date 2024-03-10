@@ -47,25 +47,25 @@ func TestCreateUser(t *testing.T) {
 		{
 			name: "Email,Username and Password Required",
 			json: strings.NewReader(string(`{}`)),
-			code: 422,
+			code: http.StatusUnprocessableEntity,
 		}, {
 			name: "Invalid email",
 			json: strings.NewReader(string(`{	 "username":"wxosoitsorlxd",
 			 	"email":"dsxssoasfdgmail.com",
 				"password":"letsgooguel"	}`)),
-			code: 422,
+			code: http.StatusUnprocessableEntity,
 		}, {
 			name: "Password too short",
 			json: strings.NewReader(string(`{	 "username":"wxosoitsorlxd",
 			 	"email":"dsxssoasfd@gmail.com",
 				"password":"lets"	}`)),
-			code: 422,
+			code: http.StatusUnprocessableEntity,
 		}, {
 			name: "Successfuly create User",
 			json: strings.NewReader(string(`{	 "username":"wxosoitsorlxd",
 			"email":"dsxssoasfd@gmail.com",
 				"password":"password"	}`)),
-			code: 201,
+			code: http.StatusCreated,
 		}}
 
 	for _, tt := range tests {
@@ -98,18 +98,18 @@ func TestSignIn(t *testing.T) {
 		{
 			name: "Username and Password Required",
 			json: strings.NewReader(string(`{}`)),
-			code: 422,
+			code: http.StatusUnprocessableEntity,
 		}, {
 			name: "Invalid password",
 			json: strings.NewReader(string(`{	 "username":"wxosoitsorlxd",
 			 	"email":"dsxssoasfdgmail.com",
 				"password":"letsgooguel"	}`)),
-			code: 401,
+			code: http.StatusUnauthorized,
 		}, {
 			name: "Successfuly sign in",
 			json: strings.NewReader(string(`{"username":"wxosoitsorlxd",
 				"password":"password"	}`)),
-			code: 200,
+			code: http.StatusOK,
 		}}
 
 	for _, tt := range tests {

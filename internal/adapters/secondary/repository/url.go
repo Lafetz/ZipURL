@@ -60,16 +60,16 @@ func (store *Store) GetUrl(shortUrl string) (*domain.Url, error) {
 	query := `
 SELECT id, user_id,short_url,original_url,created_at
 FROM urls
-WHERE id = $1`
+WHERE short_url = $1`
 
 	var url domain.Url
 
 	err := store.db.QueryRow(query, shortUrl).Scan(
-		url.Id,
-		url.UserId,
-		url.ShortUrl,
-		url.OriginalUrl,
-		url.CreatedAt,
+		&url.Id,
+		&url.UserId,
+		&url.ShortUrl,
+		&url.OriginalUrl,
+		&url.CreatedAt,
 	)
 
 	if err != nil {
@@ -101,15 +101,15 @@ func (store *Store) AddUrl(url *domain.Url) (*domain.Url, error) {
 			return nil, err
 		}
 	}
-	return nil, nil
+	return url, nil
 }
 
-func (store *Store) DeleteUrl(shorturl string) error {
+func (store *Store) DeleteUrl(shorturl string, userId uuid.UUID) error {
 	query := `
 	DELETE FROM urls
-	WHERE short_url = $1`
+	WHERE short_url = $1 And user_id = $2`
 
-	result, err := store.db.Exec(query, shorturl)
+	result, err := store.db.Exec(query, shorturl, userId)
 	if err != nil {
 		return err
 	}

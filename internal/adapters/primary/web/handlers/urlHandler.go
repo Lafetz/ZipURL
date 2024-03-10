@@ -1,7 +1,8 @@
 package handlers
 
 import (
-	"fmt"
+	"errors"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -13,29 +14,31 @@ import (
 )
 
 type createUrlReq struct {
-	OriginalUrl string `json:"originalUrl" binding:"required,min=5" `
+	OriginalUrl string `json:"originalUrl" binding:"required,min=5"`
 }
 
 func CreateUrl(urlService services.UrlServiceApi) gin.HandlerFunc {
 	return func(c *gin.Context) {
+
 		user, exists := c.Get("user")
 		if !exists {
-			c.JSON(401, gin.H{
+			c.JSON(http.StatusUnauthorized, gin.H{
 				"Error": "Unauthorized",
 			})
+			return
 		}
 		var ginUrl createUrlReq
 		if err := c.ShouldBind(&ginUrl); err != nil {
 			_, ok := err.(validator.ValidationErrors)
 
 			if ok {
-				c.JSON(422, gin.H{
+				c.JSON(http.StatusUnprocessableEntity, gin.H{
 					"Errors": ValidateModel(err),
 				})
 				return
 
 			}
-			c.JSON(400, gin.H{
+			c.JSON(http.StatusBadRequest, gin.H{
 				"Error": "Error processing request body",
 			})
 			return
@@ -43,22 +46,24 @@ func CreateUrl(urlService services.UrlServiceApi) gin.HandlerFunc {
 
 		id, err := uuid.Parse(user.(*jwtauth.UserToken).Id)
 		if err != nil {
-			c.JSON(500, gin.H{
-				"Error": "Internal Server Error",
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"Error": "internal server Error",
 			})
+			return
 		}
 		domainUrl := domain.NewUrl(id, ginUrl.OriginalUrl)
 		url, err := urlService.AddUrl(domainUrl)
 		if err != nil {
-			fmt.Print(err)
-			c.JSON(500, gin.H{
-				"Error": "Internal Server Error",
+
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"Error": "internal server Error",
 			})
 			return
 		}
+
 		res := jsonformatter.NewUrlResp(url)
 
-		c.JSON(201, gin.H{
+		c.JSON(http.StatusCreated, gin.H{
 			"message": "url added",
 			"url":     res,
 		})
@@ -70,27 +75,33 @@ func DeleteUrl(urlService services.UrlServiceApi) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user, exists := c.Get("user")
 		if !exists {
-			c.JSON(401, gin.H{
+			c.JSON(http.StatusUnauthorized, gin.H{
 				"Error": "Unauthorized",
 			})
 			return
 		}
-		id := c.Param("shorturl")
+		shortUrl := c.Param("shorturl")
 		userId, err := uuid.Parse(user.(*jwtauth.UserToken).Id)
 		if err != nil {
-			c.JSON(500, gin.H{
-				"Error": "Internal Server Error",
-			})
-		}
-		err = urlService.DeleteUrl(id, userId)
-		if err != nil {
-			fmt.Print(err)
-			c.JSON(500, gin.H{
-				"Error": "Internal Server Error",
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"Error": "internal server Error",
 			})
 			return
 		}
-		c.JSON(200, gin.H{
+		err = urlService.DeleteUrl(shortUrl, userId)
+		if err != nil {
+			if errors.Is(err, services.ErrUrlNotFound) {
+				c.JSON(http.StatusNotFound, gin.H{
+					"Error": err.Error(),
+				})
+				return
+			}
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"Error": "internal server Error",
+			})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
 			"message": "url removed",
 		})
 	}
@@ -100,27 +111,55 @@ func GetUrls(urlService services.UrlServiceApi) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user, exists := c.Get("user")
 		if !exists {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"Error": "Unauthorized",
+			})
 			return
 		}
 		id, err := uuid.Parse(user.(*jwtauth.UserToken).Id)
 		if err != nil {
-			c.JSON(500, gin.H{
-				"Error": "Internal Server Error",
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"Error": "internal server Error",
 			})
+			return
 		}
 		urls, err := urlService.GetUrls(id)
 		if err != nil {
-			fmt.Print(err)
-			c.JSON(500, gin.H{
-				"Error": "Internal Server Error",
+			if err != nil {
+				if errors.Is(err, services.ErrUrlNotFound) {
+					c.JSON(http.StatusNotFound, gin.H{
+						"Error": err.Error(),
+					})
+					return
+				}
+			}
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"Error": "internal server Error",
 			})
 			return
 		}
 
 		res := jsonformatter.NewUrlsResp(urls)
 
-		c.JSON(200, gin.H{
+		c.JSON(http.StatusOK, gin.H{
 			"urls": res,
 		})
+	}
+}
+func Redirect(urlservice services.UrlServiceApi) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		shortUrl := c.Param("shorturl")
+
+		url, err := urlservice.GetUrl(shortUrl)
+		if err != nil {
+
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"Error": "internal server Error",
+			})
+			return
+		}
+
+		c.Redirect(http.StatusSeeOther, url.OriginalUrl)
+
 	}
 }
